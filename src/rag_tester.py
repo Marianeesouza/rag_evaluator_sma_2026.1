@@ -50,7 +50,7 @@ class RAGTester:
     @staticmethod
     def calculate_metrics(rag_instance: BaseRAG, dataset_path: Optional[str] = None, metrics_to_run: Optional[List[str]] = None) -> Dict:
         if metrics_to_run is None:
-            metrics_to_run = ['latency', 'bleu', 'rouge', 'cosine', 'accuracy', 'llm_judge']
+            metrics_to_run = ['latency', 'bleu', 'rouge', 'cosine', 'llm_judge']
         
         # Só cria o objeto se o usuário pediu a métrica.
         judge_internal = None
@@ -113,16 +113,6 @@ class RAGTester:
                 res.update(RAGTester._calculate_rouge(gabarito_texto, output_rag))
             if 'cosine' in metrics_to_run:
                 res['cosine'] = RAGTester._calculate_cosine_similarity(gabarito_texto, output_rag)
-            
-            # Métricas de Lógica (Acurácia de Múltipla Escolha)
-            if 'accuracy' in metrics_to_run:
-                res['accuracy'] = RAGTester._check_choice_accuracy(
-                    output_rag, 
-                    gabarito_chave, 
-                    gabarito_texto
-                )
-
-            results.append(res)
 
             # --- Métrica : Acurácia via LLM Judge ---
             if 'llm_judge' in metrics_to_run and judge_internal is not None:
@@ -135,6 +125,8 @@ class RAGTester:
                 
                 # Compara a letra do juiz com o gabarito
                 res['llm_judge'] = 1.0 if letra_detectada == gabarito_chave.upper() else 0.0
+
+            results.append(res)
 
         # Limpeza de hardware via interface BaseRAG
         rag_instance.teardown()
