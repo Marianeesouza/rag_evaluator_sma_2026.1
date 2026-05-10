@@ -4,7 +4,8 @@ import math
 import numpy as np
 import pandas as pd
 from collections import Counter
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Optional
+from langchain_core.chat_models import BaseChatModel
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from rouge_score import rouge_scorer
 from base_rag import BaseRAG
@@ -48,7 +49,7 @@ class RAGTester:
     # --- Orquestração ---
 
     @staticmethod
-    def calculate_metrics(rag_instance: BaseRAG, dataset_path: Optional[str] = None, metrics_to_run: Optional[List[str]] = None) -> Dict:
+    def calculate_metrics(rag_instance: BaseRAG, llm_judge_model: BaseChatModel, dataset_path: Optional[str] = None, metrics_to_run: Optional[List[str]] = None) -> Dict:
         if metrics_to_run is None:
             metrics_to_run = ['latency', 'bleu', 'rouge', 'cosine', 'llm_judge']
         
@@ -56,7 +57,7 @@ class RAGTester:
         judge_internal = None
         if 'llm_judge' in metrics_to_run:
             try:
-                judge_internal = LLMJudge()
+                judge_internal = LLMJudge(chat_model=llm_judge_model)
             except Exception as e:
                 print(f"Erro ao instanciar LLM Judge internamente: {e}")
                 # Remove a métrica da lista para não quebrar o loop depois
@@ -131,7 +132,7 @@ class RAGTester:
         # Limpeza de hardware via interface BaseRAG
         rag_instance.teardown()
 
-# Cálculo das Médias (Summary)
+        # Cálculo das Médias (Summary)
         numeric_keys = [k for k, v in results[0].items() if isinstance(v, (int, float)) and k != 'id']
         averages = {f"avg_{k}": np.mean([r[k] for r in results if r.get(k) is not None]) for k in numeric_keys}
 

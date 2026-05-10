@@ -1,33 +1,15 @@
 import os
-from langchain_huggingface import HuggingFaceEndpoint, ChatHuggingFace
+from langchain_core.chat_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
 
 class LLMJudge:
-    def __init__(self, repo_id="moonshotai/Kimi-K2.6"):
+    def __init__(self, chat_model: BaseChatModel):
         """
-        Inicializa o Juiz usando o endpoint remoto do Hugging Face (Kimi via Fireworks-AI).
-        Baseado no notebook da Aula 03 da disciplina.
+        Recebe qualquer instância de chat_model que herde de BaseChatModel.
+        Ex: ChatHuggingFace, ChatGoogleGenerativeAI, ChatOpenAI, etc.
         """
-        print(f"Conectando ao Juiz HF (Kimi): {repo_id}...")
-        
-        # O token do Hugging Face deve estar nas variáveis de ambiente
-        self.hf_token = os.getenv("HF_TOKEN")
-        if not self.hf_token:
-            raise ValueError("Erro: Variável de ambiente HF_TOKEN não configurada.")
-
-        # 1. Configura o modelo base (Endpoint) conforme o exemplo do professor
-        self.llm = HuggingFaceEndpoint(
-            repo_id=repo_id,
-            provider="fireworks-ai",
-            task="text-generation",
-            max_new_tokens=10, # Só precisamos de uma letra
-            huggingfacehub_api_token=self.hf_token,
-            temperature=0.1
-        )
-
-        # 2. Transforma em ChatHuggingFace para suportar SystemMessage e HumanMessage
-        self.chat_model = ChatHuggingFace(llm=self.llm)
-        print(f"✅ Juiz {repo_id} pronto para avaliação!")
+        self.chat_model = chat_model
+        print(f"✅ Juiz inicializado com o modelo: {type(self.chat_model).__name__}")
 
     def identify_choice(self, pergunta: str, alternativas: str, resposta_rag: str) -> str:
         """
