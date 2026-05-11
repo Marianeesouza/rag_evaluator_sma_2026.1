@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from collections import Counter
 from typing import List, Dict, Optional
-from langchain_core.chat_models import BaseChatModel
+from langchain_core.language_models import BaseChatModel
 from nltk.translate.bleu_score import sentence_bleu, SmoothingFunction
 from rouge_score import rouge_scorer
 from base_rag import BaseRAG
