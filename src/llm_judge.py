@@ -1,5 +1,5 @@
 import os
-from langchain_core.chat_models import BaseChatModel
+from langchain_core.language_models import BaseChatModel
 from langchain_core.messages import SystemMessage, HumanMessage
 
 class LLMJudge:
